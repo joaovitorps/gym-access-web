@@ -14,7 +14,10 @@ function wrapper({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <MemoryRouter initialEntries={["/login"]}>
+        <MemoryRouter
+          initialEntries={["/login"]}
+          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+        >
           <Routes>
             <Route path="/login" element={children} />
             <Route path="/" element={<DashboardPage />} />
