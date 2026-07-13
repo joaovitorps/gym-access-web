@@ -6,7 +6,7 @@ import { server } from "@/test/msw/server";
 import { AuthProvider } from "../AuthContext";
 import { AuthGuard, PublicOnlyGuard } from "../AuthGuard";
 
-function wrapper({ children }: { children: React.ReactNode }) {
+function wrapper() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
