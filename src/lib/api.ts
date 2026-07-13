@@ -43,9 +43,11 @@ export async function api<T>(
     throw new ApiError(response.status, body.message || "Request failed");
   }
 
-  if (response.status === 204) {
+  const text = await response.text();
+
+  if (!text) {
     return undefined as T;
   }
 
-  return response.json() as Promise<T>;
+  return JSON.parse(text) as T;
 }
