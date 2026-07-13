@@ -68,7 +68,7 @@ describe("LoginPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/dashboard/i)).toBeInTheDocument();
+      expect(screen.getByText(/ready for today's workout/i)).toBeInTheDocument();
     });
   });
 });
