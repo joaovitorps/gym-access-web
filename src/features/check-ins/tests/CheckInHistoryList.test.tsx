@@ -50,6 +50,8 @@ describe("CheckInHistoryList", () => {
       expect(screen.getByText(/user-2/i)).toBeInTheDocument();
     });
 
+    expect(screen.getByText("JS Gym")).toBeInTheDocument();
+    expect(screen.getByText("Iron Paradise")).toBeInTheDocument();
     expect(screen.getByText(/user-3/i)).toBeInTheDocument();
     expect(
       screen.getAllByRole("button", { name: /validate/i }),
