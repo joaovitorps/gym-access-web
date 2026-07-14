@@ -13,15 +13,6 @@ const gym: Gym = {
   longitude: -46.671253,
 };
 
-const mockGetCurrentPosition = vi.fn();
-
-Object.defineProperty(global.navigator, "geolocation", {
-  value: {
-    getCurrentPosition: mockGetCurrentPosition,
-  },
-  writable: true,
-});
-
 function wrapper({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -33,46 +24,59 @@ function wrapper({ children }: { children: React.ReactNode }) {
 }
 
 describe("CheckInButton", () => {
-  beforeEach(() => {
-    mockGetCurrentPosition.mockImplementation((success) => {
-      success({
-        coords: {
-          latitude: gym.latitude,
-          longitude: gym.longitude,
-        },
-      });
-    });
-  });
+  it("renders check-in button and detects proximity", () => {
+    render(
+      <CheckInButton
+        gym={gym}
+        latitude={gym.latitude}
+        longitude={gym.longitude}
+      />,
+      { wrapper },
+    );
 
-  afterEach(() => {
-    mockGetCurrentPosition.mockReset();
-  });
-
-  it("renders check-in button and detects proximity", async () => {
-    render(<CheckInButton gym={gym} />, { wrapper });
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /check in/i }),
-      ).toBeInTheDocument();
-    });
-
+    expect(
+      screen.getByRole("button", { name: /check in/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/0 m away/i)).toBeInTheDocument();
   });
 
   it("checks in successfully when within range", async () => {
-    render(<CheckInButton gym={gym} />, { wrapper });
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /check in/i }),
-      ).not.toBeDisabled();
-    });
+    render(
+      <CheckInButton
+        gym={gym}
+        latitude={gym.latitude}
+        longitude={gym.longitude}
+      />,
+      { wrapper },
+    );
 
     await userEvent.click(screen.getByRole("button", { name: /check in/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/checked in/i)).toBeInTheDocument();
     });
+  });
+
+  it("is disabled while locating", () => {
+    render(
+      <CheckInButton
+        gym={gym}
+        latitude={null}
+        longitude={null}
+        isLocating
+      />,
+      { wrapper },
+    );
+
+    expect(screen.getByRole("button", { name: /getting location/i })).toBeDisabled();
+  });
+
+  it("allows manual entry when geolocation is unavailable", async () => {
+    render(
+      <CheckInButton gym={gym} latitude={null} longitude={null} />,
+      { wrapper },
+    );
+
+    expect(screen.getByRole("button", { name: /enter location manually/i })).toBeEnabled();
   });
 });

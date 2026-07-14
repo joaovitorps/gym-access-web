@@ -39,24 +39,32 @@ export const handlers = [
 
   http.get("*/gyms/search", ({ request }) => {
     const url = new URL(request.url);
-    const q = url.searchParams.get("q");
+    const q = url.searchParams.get("q") ?? "";
 
-    if (!q) {
-      return HttpResponse.json({ gyms: [] });
-    }
+    const gyms = [
+      {
+        id: "gym-1",
+        title: "JS Gym",
+        description: "A great gym",
+        phone: "1234567890",
+        latitude: "-23.5216",
+        longitude: "-46.6712",
+      },
+      {
+        id: "gym-2",
+        title: "Iron Paradise",
+        description: "Heavy weights only",
+        phone: null,
+        latitude: "-23.5220",
+        longitude: "-46.6720",
+      },
+    ];
 
-    return HttpResponse.json({
-      gyms: [
-        {
-          id: "gym-1",
-          title: `${q} Gym`,
-          description: "A great gym",
-          phone: "1234567890",
-          latitude: -23.5216,
-          longitude: -46.6712,
-        },
-      ],
-    });
+    const filtered = q
+      ? gyms.filter((gym) => gym.title.includes(q))
+      : gyms;
+
+    return HttpResponse.json({ gyms: filtered });
   }),
 
   http.get("*/gyms/nearby", () => {
@@ -67,8 +75,8 @@ export const handlers = [
           title: "Nearby Gym",
           description: null,
           phone: null,
-          latitude: -23.5216,
-          longitude: -46.6712,
+          latitude: "-23.5216",
+          longitude: "-46.6712",
         },
       ],
     });

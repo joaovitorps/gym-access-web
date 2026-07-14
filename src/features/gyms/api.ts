@@ -10,16 +10,28 @@ export interface Gym {
   longitude: number;
 }
 
+function normalizeGym(gym: Gym): Gym {
+  return {
+    ...gym,
+    latitude: Number(gym.latitude),
+    longitude: Number(gym.longitude),
+  };
+}
+
 export async function searchGyms(query: string, page: number) {
-  return api<{ gyms: Gym[] }>(
+  const data = await api<{ gyms: Gym[] }>(
     `/gyms/search?q=${encodeURIComponent(query)}&page=${page}`,
   );
+
+  return { ...data, gyms: data.gyms.map(normalizeGym) };
 }
 
 export async function fetchNearbyGyms(latitude: number, longitude: number) {
-  return api<{ gyms: Gym[] }>(
+  const data = await api<{ gyms: Gym[] }>(
     `/gyms/nearby?latitude=${latitude}&longitude=${longitude}`,
   );
+
+  return { ...data, gyms: data.gyms.map(normalizeGym) };
 }
 
 export async function registerGym(data: RegisterGymInput) {

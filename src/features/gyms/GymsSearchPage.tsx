@@ -4,41 +4,46 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useAuth } from "@/features/auth/AuthContext";
-
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { CheckInButton } from "@/features/check-ins/CheckInButton";
 import { GymCard } from "./GymCard";
 import { useGymsSearch } from "./hooks";
 import { RegisterGymModal } from "./RegisterGymModal";
-import { gymSearchSchema, type GymSearchInput } from "./schemas";
 
 export function GymsSearchPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const {
+    latitude,
+    longitude,
+    isLoading: isLocating,
+    request: requestLocation,
+  } = useGeolocation();
   const [page, setPage] = useState(1);
-  const [submittedQuery, setSubmittedQuery] = useState("");
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isAdmin = user?.role === "ADMIN";
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<GymSearchInput>({
-    resolver: zodResolver(gymSearchSchema),
-  });
+  useEffect(() => {
+    requestLocation();
+  }, [requestLocation]);
 
-  const { data, isLoading, error, isError } = useGymsSearch(submittedQuery, page);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedQuery(query);
+      setPage(1);
+    }, 300);
 
-  const onSearch = (data: GymSearchInput) => {
-    setSubmittedQuery(data.q);
-    setPage(1);
-  };
+    return () => clearTimeout(timeout);
+  }, [query]);
+
+  const { data, isLoading, error, isError } = useGymsSearch(debouncedQuery, page);
 
   const handleRetry = () => {
     queryClient.invalidateQueries({ queryKey: ["gyms", "search"] });
@@ -63,19 +68,15 @@ export function GymsSearchPage() {
         ) : null}
       </div>
 
-      <form onSubmit={handleSubmit(onSearch)} className="flex gap-2">
-        <div className="flex-1">
-          <Input
-            placeholder="Search gyms..."
-            error={errors.q?.message}
-            {...register("q")}
-          />
-        </div>
-        <Button type="submit">
-          <Search className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">Search</span>
-        </Button>
-      </form>
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+        <Input
+          placeholder="Search gyms..."
+          className="pl-9"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
 
       {isLoading ? (
         <div className="space-y-3">
@@ -89,10 +90,10 @@ export function GymsSearchPage() {
           description={error.message}
           onRetry={handleRetry}
         />
-      ) : data?.gyms.length === 0 && submittedQuery ? (
+      ) : data?.gyms.length === 0 && debouncedQuery ? (
         <EmptyState
           title="No gyms found"
-          description={`No gyms matched "${submittedQuery}".`}
+          description={`No gyms matched "${debouncedQuery}".`}
         />
       ) : data?.gyms.length ? (
         <>
@@ -112,7 +113,17 @@ export function GymsSearchPage() {
                   visible: { opacity: 1, y: 0 },
                 }}
               >
-                <GymCard gym={gym} />
+                <GymCard
+                  gym={gym}
+                  action={
+                    <CheckInButton
+                      gym={gym}
+                      latitude={latitude}
+                      longitude={longitude}
+                      isLocating={isLocating}
+                    />
+                  }
+                />
               </motion.div>
             ))}
           </motion.div>

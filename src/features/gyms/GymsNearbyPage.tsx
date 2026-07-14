@@ -11,6 +11,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { MapPin, Plus, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { CheckInButton } from "@/features/check-ins/CheckInButton";
 import { GymCard } from "./GymCard";
 import { useNearbyGyms } from "./hooks";
 import { RegisterGymModal } from "./RegisterGymModal";
@@ -176,7 +177,18 @@ export function GymsNearbyPage() {
                 visible: { opacity: 1, y: 0 },
               }}
             >
-              <GymCard gym={gym} distance={gym.distance} />
+              <GymCard
+                gym={gym}
+                distance={gym.distance}
+                action={
+                  <CheckInButton
+                    gym={gym}
+                    latitude={activeLatitude}
+                    longitude={activeLongitude}
+                    isLocating={isLocating}
+                  />
+                }
+              />
             </motion.div>
           ))}
         </motion.div>

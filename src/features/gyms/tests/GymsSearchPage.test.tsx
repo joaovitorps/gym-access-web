@@ -1,7 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { GymsSearchPage } from "../GymsSearchPage";
 
@@ -22,29 +23,64 @@ function wrapper({ children }: { children: React.ReactNode }) {
 }
 
 describe("GymsSearchPage", () => {
-  it("renders search form", () => {
-    render(<GymsSearchPage />, { wrapper });
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    Object.defineProperty(globalThis.navigator, "geolocation", {
+      value: {
+        getCurrentPosition: vi.fn((success) => {
+          success({
+            coords: {
+              latitude: -23.5216,
+              longitude: -46.6712,
+            },
+          });
+        }),
+      },
+      configurable: true,
+    });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("renders search input", () => {
+    act(() => {
+      render(<GymsSearchPage />, { wrapper });
+    });
 
     expect(screen.getByPlaceholderText(/search gyms/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /search/i })).toBeInTheDocument();
   });
 
-  it("shows validation error when searching empty query", async () => {
-    render(<GymsSearchPage />, { wrapper });
-
-    await userEvent.click(screen.getByRole("button", { name: /search/i }));
-
-    expect(await screen.findByText(/search term is required/i)).toBeInTheDocument();
-  });
-
-  it("renders gym cards after searching", async () => {
-    render(<GymsSearchPage />, { wrapper });
-
-    await userEvent.type(screen.getByPlaceholderText(/search gyms/i), "JS");
-    await userEvent.click(screen.getByRole("button", { name: /search/i }));
+  it("loads all gyms on mount", async () => {
+    act(() => {
+      render(<GymsSearchPage />, { wrapper });
+    });
 
     await waitFor(() => {
       expect(screen.getByText("JS Gym")).toBeInTheDocument();
     });
+    expect(screen.getByText("Iron Paradise")).toBeInTheDocument();
+  });
+
+  it("filters gyms as the user types", async () => {
+    act(() => {
+      render(<GymsSearchPage />, { wrapper });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("JS Gym")).toBeInTheDocument();
+    });
+
+    await userEvent.type(screen.getByPlaceholderText(/search gyms/i), "Iron");
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText("JS Gym")).not.toBeInTheDocument();
+    });
+    expect(screen.getByText("Iron Paradise")).toBeInTheDocument();
   });
 });
