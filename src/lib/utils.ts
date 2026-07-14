@@ -45,3 +45,19 @@ export function formatDateTime(iso: string | Date): string {
     minute: "2-digit",
   });
 }
+
+/**
+ * Returns true iff the ISO timestamp's local date (year+month+date) equals
+ * `reference`'s local date. Defaults to the current time.
+ */
+export function isSameDay(
+  isoTimestamp: string,
+  reference: Date = new Date(),
+): boolean {
+  const d = new Date(isoTimestamp);
+  return (
+    d.getFullYear() === reference.getFullYear() &&
+    d.getMonth() === reference.getMonth() &&
+    d.getDate() === reference.getDate()
+  );
+}
