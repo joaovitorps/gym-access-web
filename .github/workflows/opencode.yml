@@ -51,10 +51,7 @@ jobs:
           model: ${{ vars.MODEL }}
           use_github_token: true
           prompt: |
-            Review this pull request:
-            - Check for code quality issues
-            - Look for potential bugs
-            - Suggest improvements
+            ${{ vars.PROMPT }}
 
       - name: React with rocket (success)
         if: success()
