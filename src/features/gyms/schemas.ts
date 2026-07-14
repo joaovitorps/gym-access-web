@@ -1,9 +1,5 @@
 import { z } from "zod";
 
-export const gymSearchSchema = z.object({
-  q: z.string(),
-});
-
 export const registerGymSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().nullable().optional(),
@@ -12,5 +8,4 @@ export const registerGymSchema = z.object({
   longitude: z.coerce.number().min(-180).max(180),
 });
 
-export type GymSearchInput = z.infer<typeof gymSearchSchema>;
 export type RegisterGymInput = z.infer<typeof registerGymSchema>;
