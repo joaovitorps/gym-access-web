@@ -95,6 +95,15 @@ export const handlers = [
           validated_at: null,
           gym_id: "gym-1",
           user_id: "user-1",
+          gym: { id: "gym-1", title: "JS Gym" },
+        },
+        {
+          id: "checkin-2",
+          created_at: "2026-07-12T08:30:00.000Z",
+          validated_at: "2026-07-12T09:00:00.000Z",
+          gym_id: "gym-2",
+          user_id: "user-1",
+          gym: { id: "gym-2", title: "Iron Paradise" },
         },
       ],
     });

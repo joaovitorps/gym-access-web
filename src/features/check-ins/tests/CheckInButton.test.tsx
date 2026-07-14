@@ -57,6 +57,39 @@ describe("CheckInButton", () => {
     });
   });
 
+  describe("success state", () => {
+    it("renders a compact success state with Check icon and timestamp", async () => {
+      render(
+        <CheckInButton
+          gym={gym}
+          latitude={gym.latitude}
+          longitude={gym.longitude}
+        />,
+        { wrapper },
+      );
+
+      await userEvent.click(
+        screen.getByRole("button", { name: /check in/i }),
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/checked in/i)).toBeInTheDocument();
+      });
+
+      // No oversized uppercase "CHECKED IN" text
+      expect(screen.queryByText(/^CHECKED IN$/)).not.toBeInTheDocument();
+      // No oversized typography / padding classes
+      expect(document.querySelector(".text-3xl")).toBeNull();
+      expect(document.querySelector(".py-10")).toBeNull();
+      // Renders the lucide Check icon (SVG with class containing "lucide-check")
+      expect(
+        document.querySelector('svg[class*="lucide-check"]'),
+      ).toBeInTheDocument();
+      // Still renders the formatted timestamp (e.g., "Jul 13")
+      expect(screen.getByText(/Jul \d+/)).toBeInTheDocument();
+    });
+  });
+
   it("is disabled while locating", () => {
     render(
       <CheckInButton
@@ -78,5 +111,87 @@ describe("CheckInButton", () => {
     );
 
     expect(screen.getByRole("button", { name: /enter location manually/i })).toBeEnabled();
+  });
+
+  describe("already checked in today", () => {
+    const otherGym: Gym = {
+      id: "gym-2",
+      title: "Other Gym",
+      description: null,
+      phone: null,
+      latitude: -23.5220,
+      longitude: -46.6720,
+    };
+    const todayTs = "2026-07-13T10:00:00.000Z";
+
+    it("renders the compact Checked-in-here-today block (no CTA) when already checked in at this gym today", () => {
+      render(
+        <CheckInButton
+          gym={gym}
+          latitude={gym.latitude}
+          longitude={gym.longitude}
+          hasCheckedInToday
+          checkedInTodayGymId={gym.id}
+          checkedInTodayCreatedAt={todayTs}
+        />,
+        { wrapper },
+      );
+
+      expect(
+        screen.getByText(/checked in here today/i),
+      ).toBeInTheDocument();
+      // No CTA button to fire a new check-in
+      expect(
+        screen.queryByRole("button", { name: /check in/i }),
+      ).not.toBeInTheDocument();
+      // Timestamp still rendered (formatDateTime yields "Jul 13")
+      expect(screen.getByText(/Jul 13/)).toBeInTheDocument();
+    });
+
+    it("renders a disabled 'Already checked in today' button when checked in at a different gym today", () => {
+      render(
+        <CheckInButton
+          gym={gym}
+          latitude={gym.latitude}
+          longitude={gym.longitude}
+          hasCheckedInToday
+          checkedInTodayGymId={otherGym.id}
+          checkedInTodayCreatedAt={todayTs}
+        />,
+        { wrapper },
+      );
+
+      const button = screen.getByRole("button", {
+        name: /already checked in today/i },
+      );
+      expect(button).toBeDisabled();
+      expect(button).toHaveAttribute("disabled");
+    });
+
+    it("does not fire the check-in mutation when disabled as already checked in elsewhere today", async () => {
+      render(
+        <CheckInButton
+          gym={gym}
+          latitude={gym.latitude}
+          longitude={gym.longitude}
+          hasCheckedInToday
+          checkedInTodayGymId={otherGym.id}
+          checkedInTodayCreatedAt={todayTs}
+        />,
+        { wrapper },
+      );
+
+      const button = screen.getByRole("button", {
+        name: /already checked in today/i },
+      );
+      // Disabled buttons should not dispatch a click; clicking should not
+      // transition the UI into the success state.
+      await userEvent.click(button);
+
+      expect(
+        screen.queryByText(/checked in here today/i),
+      ).not.toBeInTheDocument();
+      expect(button).toBeInTheDocument();
+    });
   });
 });

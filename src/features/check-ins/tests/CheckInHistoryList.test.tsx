@@ -1,58 +1,50 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/features/auth/AuthContext";
-import { http, HttpResponse } from "msw";
-import { server } from "@/test/msw/server";
+import { describe, expect, it, vi } from "vitest";
 import { CheckInHistoryList } from "../CheckInHistoryList";
 
-function wrapper({ children }: { children: React.ReactNode }) {
+let currentRole: "ADMIN" | "MEMBER" = "MEMBER";
+
+vi.mock("@/features/auth/AuthContext", () => ({
+  useAuth: () => ({ user: { role: currentRole, name: "Alice" } }),
+}));
+
+function renderWithQuery(ui: React.ReactElement) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
-    </QueryClientProvider>
-  );
-}
-
-function setUserRole(role: "ADMIN" | "MEMBER") {
-  server.use(
-    http.get("*/me", () => {
-      return HttpResponse.json({
-        user: {
-          id: "user-1",
-          name: "Alice",
-          email: "alice@example.com",
-          role,
-          created_at: "2026-07-13T21:47:02.453Z",
-        },
-      });
-    }),
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
   );
 }
 
 describe("CheckInHistoryList", () => {
-  it("loads member history from /check-ins/history", async () => {
-    setUserRole("MEMBER");
-    render(<CheckInHistoryList />, { wrapper });
+  it("renders gym titles for each check-in", async () => {
+    currentRole = "MEMBER";
+    renderWithQuery(<CheckInHistoryList />);
+
+    expect(await screen.findByText("JS Gym")).toBeInTheDocument();
+    expect(screen.getByText("Iron Paradise")).toBeInTheDocument();
+  });
+
+  it("does not show validate button or user ids for members", async () => {
+    currentRole = "MEMBER";
+    renderWithQuery(<CheckInHistoryList />);
 
     await waitFor(() => {
-      expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+      expect(screen.getByText("JS Gym")).toBeInTheDocument();
     });
 
-    expect(
-      screen.queryByText(/user-2/i),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/user-2/i)).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /validate/i }),
     ).not.toBeInTheDocument();
   });
 
   it("loads all check-ins from /check-ins for admins", async () => {
-    setUserRole("ADMIN");
-    render(<CheckInHistoryList />, { wrapper });
+    currentRole = "ADMIN";
+    renderWithQuery(<CheckInHistoryList />);
 
     await waitFor(() => {
       expect(screen.getByText(/user-2/i)).toBeInTheDocument();
@@ -65,15 +57,13 @@ describe("CheckInHistoryList", () => {
   });
 
   it("shows the validate button for pending admin check-ins", async () => {
-    setUserRole("ADMIN");
-    render(<CheckInHistoryList />, { wrapper });
+    currentRole = "ADMIN";
+    renderWithQuery(<CheckInHistoryList />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /validate/i })).toBeInTheDocument();
     });
 
-    expect(
-      screen.queryByText(/validated/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/validated/i)).toBeInTheDocument();
   });
 });
