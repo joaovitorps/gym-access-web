@@ -29,8 +29,9 @@ export function Layout() {
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           <Link
             to="/"
-            className="font-heading text-xl font-bold tracking-tight"
+            className="flex items-center gap-2 font-heading text-xl font-bold tracking-tight"
           >
+            <img src="/favicon.svg" alt="" className="h-6 w-6" />
             Gym Access
           </Link>
           <div className="flex items-center gap-3">
