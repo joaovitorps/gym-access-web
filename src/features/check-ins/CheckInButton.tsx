@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/Button";
 import { calculateDistance, formatDateTime, formatDistance } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Loader2, MapPin } from "lucide-react";
+import { Check, Loader2, MapPin } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { checkIn } from "./api";
@@ -13,15 +13,48 @@ interface CheckInButtonProps {
   latitude: number | null;
   longitude: number | null;
   isLocating?: boolean;
+  hasCheckedInToday?: boolean;
+  checkedInTodayGymId?: string | null;
+  checkedInTodayCreatedAt?: string | null;
 }
 
 const MAX_DISTANCE_METERS = 100;
+
+interface CheckInSuccessProps {
+  checkedInAt: string;
+  label?: string;
+}
+
+export function CheckInSuccess({
+  checkedInAt,
+  label = "Checked in",
+}: CheckInSuccessProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.15 }}
+      className="flex flex-col gap-0.5 py-3"
+    >
+      <div className="flex items-center gap-1.5">
+        <Check className="h-4 w-4 text-accent" />
+        <span className="text-sm font-medium text-text-primary">{label}</span>
+      </div>
+      <span className="font-mono text-xs text-text-secondary">
+        {formatDateTime(checkedInAt)}
+      </span>
+    </motion.div>
+  );
+}
 
 export function CheckInButton({
   gym,
   latitude,
   longitude,
   isLocating = false,
+  hasCheckedInToday = false,
+  checkedInTodayGymId = null,
+  checkedInTodayCreatedAt = null,
 }: CheckInButtonProps) {
   const queryClient = useQueryClient();
   const [checkedInAt, setCheckedInAt] = useState<string | null>(null);
@@ -47,19 +80,28 @@ export function CheckInButton({
   });
 
   if (checkedInAt) {
+    return <CheckInSuccess checkedInAt={checkedInAt} />;
+  }
+
+  if (
+    hasCheckedInToday &&
+    checkedInTodayGymId === gym.id &&
+    checkedInTodayCreatedAt
+  ) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center rounded-2xl bg-accent/10 py-10 text-center"
-      >
-        <h2 className="text-3xl font-bold tracking-tighter text-accent">
-          CHECKED IN
-        </h2>
-        <p className="mt-2 font-mono text-sm text-text-secondary">
-          {formatDateTime(checkedInAt)}
-        </p>
-      </motion.div>
+      <CheckInSuccess
+        checkedInAt={checkedInTodayCreatedAt}
+        label="Checked in here today"
+      />
+    );
+  }
+
+  if (hasCheckedInToday && checkedInTodayGymId !== gym.id) {
+    return (
+      <Button size="sm" className="relative gap-2" disabled>
+        <Check className="h-5 w-5" />
+        Already checked in today
+      </Button>
     );
   }
 

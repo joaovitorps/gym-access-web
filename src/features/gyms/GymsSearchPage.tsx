@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CheckInButton } from "@/features/check-ins/CheckInButton";
+import { useHasCheckedInToday } from "@/features/check-ins/hooks";
 import { GymCard } from "./GymCard";
 import { useGymsSearch } from "./hooks";
 import { RegisterGymModal } from "./RegisterGymModal";
@@ -44,6 +45,12 @@ export function GymsSearchPage() {
   }, [query]);
 
   const { data, isLoading, error, isError } = useGymsSearch(debouncedQuery, page);
+
+  const {
+    hasCheckedInToday,
+    checkedInTodayGymId,
+    checkedInTodayCreatedAt,
+  } = useHasCheckedInToday();
 
   const handleRetry = () => {
     queryClient.invalidateQueries({ queryKey: ["gyms", "search"] });
@@ -121,6 +128,9 @@ export function GymsSearchPage() {
                       latitude={latitude}
                       longitude={longitude}
                       isLocating={isLocating}
+                      hasCheckedInToday={hasCheckedInToday}
+                      checkedInTodayGymId={checkedInTodayGymId}
+                      checkedInTodayCreatedAt={checkedInTodayCreatedAt}
                     />
                   }
                 />

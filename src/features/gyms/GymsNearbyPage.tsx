@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { MapPin, Plus, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CheckInButton } from "@/features/check-ins/CheckInButton";
+import { useHasCheckedInToday } from "@/features/check-ins/hooks";
 import { GymCard } from "./GymCard";
 import { useNearbyGyms } from "./hooks";
 import { RegisterGymModal } from "./RegisterGymModal";
@@ -42,6 +43,12 @@ export function GymsNearbyPage() {
     activeLatitude,
     activeLongitude,
   );
+
+  const {
+    hasCheckedInToday,
+    checkedInTodayGymId,
+    checkedInTodayCreatedAt,
+  } = useHasCheckedInToday();
 
   const gymsWithDistance = useMemo(() => {
     if (!data?.gyms || activeLatitude === null || activeLongitude === null) {
@@ -186,6 +193,9 @@ export function GymsNearbyPage() {
                     latitude={activeLatitude}
                     longitude={activeLongitude}
                     isLocating={isLocating}
+                    hasCheckedInToday={hasCheckedInToday}
+                    checkedInTodayGymId={checkedInTodayGymId}
+                    checkedInTodayCreatedAt={checkedInTodayCreatedAt}
                   />
                 }
               />

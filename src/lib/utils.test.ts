@@ -1,4 +1,4 @@
-import { calculateDistance, formatDistance, formatDateTime } from "./utils";
+import { calculateDistance, formatDistance, formatDateTime, isSameDay } from "./utils";
 
 describe("calculateDistance", () => {
   it("returns 0 for identical coordinates", () => {
@@ -31,5 +31,27 @@ describe("formatDistance", () => {
 describe("formatDateTime", () => {
   it("formats an ISO string", () => {
     expect(formatDateTime("2026-07-13T10:00:00.000Z")).toContain("Jul 13");
+  });
+});
+
+describe("isSameDay", () => {
+  it("returns true when the ISO timestamp is on the same local date as the reference", () => {
+    const ref = new Date(2026, 6, 13, 15, 0, 0);
+    expect(isSameDay("2026-07-13T10:00:00.000Z", ref)).toBe(true);
+  });
+
+  it("returns false for the next day", () => {
+    const ref = new Date(2026, 6, 13, 15, 0, 0);
+    expect(isSameDay("2026-07-14T10:00:00.000Z", ref)).toBe(false);
+  });
+
+  it("returns false for the previous day", () => {
+    const ref = new Date(2026, 6, 13, 15, 0, 0);
+    expect(isSameDay("2026-07-12T10:00:00.000Z", ref)).toBe(false);
+  });
+
+  it("returns false for a different year and month", () => {
+    const ref = new Date(2026, 6, 13, 15, 0, 0);
+    expect(isSameDay("2025-06-13T10:00:00.000Z", ref)).toBe(false);
   });
 });
