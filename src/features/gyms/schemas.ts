@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const gymSearchSchema = z.object({
-  q: z.string().min(1, "Search term is required"),
+  q: z.string(),
 });
 
 export const registerGymSchema = z.object({

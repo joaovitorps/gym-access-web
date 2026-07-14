@@ -5,7 +5,6 @@ export function useGymsSearch(query: string, page: number) {
   return useQuery({
     queryKey: ["gyms", "search", { query, page }],
     queryFn: () => searchGyms(query, page),
-    enabled: query.length > 0,
   });
 }
 
