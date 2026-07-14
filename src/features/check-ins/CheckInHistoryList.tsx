@@ -73,10 +73,13 @@ export function CheckInHistoryList() {
           >
             <Card className="flex items-center justify-between gap-4">
               <div>
+                <p className="font-medium text-text-primary">
+                  {checkIn.gym?.title || "Unknown gym"}
+                </p>
                 <p className="font-mono text-sm text-text-secondary">
                   {formatDateTime(checkIn.created_at)}
                 </p>
-                <p className="mt-1 text-sm text-text-secondary">
+                <p className="text-sm text-text-secondary">
                   {checkIn.validated_at ? (
                     <span className="inline-flex items-center gap-1.5 text-success">
                       Validated
