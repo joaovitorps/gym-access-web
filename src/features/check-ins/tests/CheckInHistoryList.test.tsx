@@ -36,7 +36,7 @@ describe("CheckInHistoryList", () => {
       expect(screen.getByText("JS Gym")).toBeInTheDocument();
     });
 
-    expect(screen.queryByText(/user-2/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Bob/i)).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /validate/i }),
     ).not.toBeInTheDocument();
@@ -47,12 +47,12 @@ describe("CheckInHistoryList", () => {
     renderWithQuery(<CheckInHistoryList />);
 
     await waitFor(() => {
-      expect(screen.getByText(/user-2/i)).toBeInTheDocument();
+      expect(screen.getByText(/Bob/i)).toBeInTheDocument();
     });
 
     expect(screen.getByText("JS Gym")).toBeInTheDocument();
     expect(screen.getByText("Iron Paradise")).toBeInTheDocument();
-    expect(screen.getByText(/user-3/i)).toBeInTheDocument();
+    expect(screen.getByText(/Charlie/i)).toBeInTheDocument();
     expect(
       screen.getAllByRole("button", { name: /validate/i }),
     ).toHaveLength(1);

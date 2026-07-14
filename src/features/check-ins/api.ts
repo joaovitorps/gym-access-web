@@ -10,6 +10,9 @@ export interface CheckIn {
     id: string;
     title: string;
   };
+  user?: {
+    name: string;
+  };
 }
 
 export async function checkIn(

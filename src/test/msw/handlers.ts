@@ -96,6 +96,7 @@ export const handlers = [
           gym_id: "gym-1",
           user_id: "user-1",
           gym: { id: "gym-1", title: "JS Gym" },
+          user: { name: "Alice" },
         },
         {
           id: "checkin-2",
@@ -104,6 +105,7 @@ export const handlers = [
           gym_id: "gym-2",
           user_id: "user-1",
           gym: { id: "gym-2", title: "Iron Paradise" },
+          user: { name: "Alice" },
         },
       ],
     });
@@ -119,6 +121,7 @@ export const handlers = [
           gym_id: "gym-1",
           user_id: "user-2",
           gym: { id: "gym-1", title: "JS Gym" },
+          user: { name: "Bob" },
         },
         {
           id: "checkin-3",
@@ -127,6 +130,7 @@ export const handlers = [
           gym_id: "gym-2",
           user_id: "user-3",
           gym: { id: "gym-2", title: "Iron Paradise" },
+          user: { name: "Charlie" },
         },
       ],
     });

@@ -93,7 +93,7 @@ export function CheckInHistoryList() {
               </div>
               {isAdmin ? (
                 <p className="mt-1 text-xs text-text-secondary">
-                  User: <span className="font-mono">{checkIn.user_id}</span>
+                  User: <span className="font-medium">{checkIn.user?.name || checkIn.user_id}</span>
                 </p>
               ) : null}
               {isAdmin && !checkIn.validated_at ? (
