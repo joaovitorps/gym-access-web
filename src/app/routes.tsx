@@ -8,8 +8,9 @@ import { ErrorPage } from "./ErrorPage";
 import { Layout } from "./Layout";
 import { NotFoundPage } from "./NotFoundPage";
 import { ProfilePage } from "./ProfilePage";
+import type { RouteObject } from "react-router-dom";
 
-export const routes = [
+export const routes: RouteObject[] = [
   {
     path: "/login",
     element: (
