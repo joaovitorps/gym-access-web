@@ -88,10 +88,10 @@ export function CheckInButton({ gym }: CheckInButtonProps) {
       ) : null}
 
       <Button
-        size="lg"
-        className="relative w-full gap-2"
+        size="sm"
+        className="relative gap-2"
         onClick={handleCheckIn}
-        disabled={mutation.isPending || isLocating}
+        disabled={mutation.isPending || isLocating || !isWithinRange}
       >
         {mutation.isPending ? (
           <Loader2 className="h-5 w-5 animate-spin" />

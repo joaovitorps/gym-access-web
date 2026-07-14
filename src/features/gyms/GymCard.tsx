@@ -29,27 +29,28 @@ export function GymCard({ gym, distance, action }: GymCardProps) {
               </p>
             ) : null}
           </div>
-          {typeof distance === "number" ? (
-            <span className="shrink-0 font-mono text-sm text-accent">
-              {formatDistance(distance)}
-            </span>
-          ) : null}
+          <div className="flex shrink-0 flex-col items-end gap-1 text-sm">
+            {typeof distance === "number" ? (
+              <span className="font-mono text-accent">
+                {formatDistance(distance)}
+              </span>
+            ) : null}
+            {gym.phone ? (
+              <span className="inline-flex items-center gap-1.5 text-text-secondary">
+                <Phone className="h-4 w-4" />
+                {gym.phone}
+              </span>
+            ) : null}
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm text-text-secondary">
-          {gym.phone ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Phone className="h-4 w-4" />
-              {gym.phone}
-            </span>
-          ) : null}
-          <span className="inline-flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
             <MapPin className="h-4 w-4" />
             {gym.latitude.toFixed(5)}, {gym.longitude.toFixed(5)}
           </span>
+          {action ? <div>{action}</div> : null}
         </div>
-
-        {action ? <div className="mt-1">{action}</div> : null}
       </Card>
     </motion.div>
   );
