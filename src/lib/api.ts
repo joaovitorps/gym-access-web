@@ -8,7 +8,7 @@ export class ApiError extends Error {
   }
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:3333";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3333";
 
 let authToken: string | null = null;
 
@@ -29,7 +29,7 @@ export async function api<T>(
   const response = await fetch(`${API_URL}${input}`, {
     ...init,
     headers: {
-      "Content-Type": "application/json",
+      ...(init.body ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...init.headers,
     },
