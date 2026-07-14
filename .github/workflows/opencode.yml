@@ -19,15 +19,30 @@ jobs:
     permissions:
       id-token: write
       contents: read
-      pull-requests: read
-      issues: read
+      pull-requests: write
+      issues: write
     steps:
+      - name: React with eyes (analyzing)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "issue_comment" ]; then
+            gh api --method POST \
+              /repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions \
+              -f content=eyes
+          elif [ "${{ github.event_name }}" = "pull_request_review_comment" ]; then
+            gh api --method POST \
+              /repos/${{ github.repository }}/pulls/comments/${{ github.event.comment.id }}/reactions \
+              -f content=eyes
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Run opencode
+        id: opencode
         uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
@@ -38,3 +53,33 @@ jobs:
             - Check for code quality issues
             - Look for potential bugs
             - Suggest improvements
+
+      - name: React with rocket (success)
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "issue_comment" ]; then
+            gh api --method POST \
+              /repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions \
+              -f content=rocket
+          elif [ "${{ github.event_name }}" = "pull_request_review_comment" ]; then
+            gh api --method POST \
+              /repos/${{ github.repository }}/pulls/comments/${{ github.event.comment.id }}/reactions \
+              -f content=rocket
+          fi
+
+      - name: React with X (failure)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "issue_comment" ]; then
+            gh api --method POST \
+              /repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions \
+              -f content=-1
+          elif [ "${{ github.event_name }}" = "pull_request_review_comment" ]; then
+            gh api --method POST \
+              /repos/${{ github.repository }}/pulls/comments/${{ github.event.comment.id }}/reactions \
+              -f content=-1
+          fi
