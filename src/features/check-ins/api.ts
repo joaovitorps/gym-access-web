@@ -10,6 +10,9 @@ export interface CheckIn {
     id: string;
     title: string;
   };
+  user?: {
+    name: string;
+  };
 }
 
 export async function checkIn(
@@ -25,6 +28,10 @@ export async function checkIn(
 
 export async function fetchCheckInHistory(page: number) {
   return api<{ checkIns: CheckIn[] }>(`/check-ins/history?page=${page}`);
+}
+
+export async function fetchAllCheckInsHistory(page: number) {
+  return api<{ checkIns: CheckIn[] }>(`/check-ins?page=${page}`);
 }
 
 export async function fetchCheckInMetrics() {

@@ -18,6 +18,7 @@ export function ValidateCheckInButton({
     mutationFn: validateCheckIn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["check-ins", "history"] });
+      queryClient.invalidateQueries({ queryKey: ["check-ins", "all"] });
       toast.success("Check-in validated");
     },
     onError: (error) => {
