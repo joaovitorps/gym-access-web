@@ -6,7 +6,7 @@ export interface CheckIn {
   validated_at: string | null;
   gym_id: string;
   user_id: string;
-  gym: {
+  gym?: {
     id: string;
     title: string;
   };

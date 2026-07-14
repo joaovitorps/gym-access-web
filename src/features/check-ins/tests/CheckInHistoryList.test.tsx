@@ -19,5 +19,6 @@ describe("CheckInHistoryList", () => {
     renderWithQuery(<CheckInHistoryList />);
 
     expect(await screen.findByText("JS Gym")).toBeInTheDocument();
+    expect(screen.getByText("Iron Paradise")).toBeInTheDocument();
   });
 });
