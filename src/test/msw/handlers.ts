@@ -95,6 +95,7 @@ export const handlers = [
           validated_at: null,
           gym_id: "gym-1",
           user_id: "user-1",
+          gym: { id: "gym-1", title: "JS Gym" },
         },
       ],
     });
