@@ -180,7 +180,14 @@ export function GymsNearbyPage() {
               <GymCard
                 gym={gym}
                 distance={gym.distance}
-                action={<CheckInButton gym={gym} />}
+                action={
+                  <CheckInButton
+                    gym={gym}
+                    latitude={activeLatitude}
+                    longitude={activeLongitude}
+                    isLocating={isLocating}
+                  />
+                }
               />
             </motion.div>
           ))}

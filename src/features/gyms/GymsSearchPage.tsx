@@ -4,7 +4,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useAuth } from "@/features/auth/AuthContext";
-
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
@@ -17,12 +17,22 @@ import { RegisterGymModal } from "./RegisterGymModal";
 export function GymsSearchPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const {
+    latitude,
+    longitude,
+    isLoading: isLocating,
+    request: requestLocation,
+  } = useGeolocation();
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isAdmin = user?.role === "ADMIN";
+
+  useEffect(() => {
+    requestLocation();
+  }, [requestLocation]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -103,7 +113,17 @@ export function GymsSearchPage() {
                   visible: { opacity: 1, y: 0 },
                 }}
               >
-                <GymCard gym={gym} action={<CheckInButton gym={gym} />} />
+                <GymCard
+                  gym={gym}
+                  action={
+                    <CheckInButton
+                      gym={gym}
+                      latitude={latitude}
+                      longitude={longitude}
+                      isLocating={isLocating}
+                    />
+                  }
+                />
               </motion.div>
             ))}
           </motion.div>

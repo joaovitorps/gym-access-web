@@ -46,13 +46,17 @@ describe("GymsSearchPage", () => {
   });
 
   it("renders search input", () => {
-    render(<GymsSearchPage />, { wrapper });
+    act(() => {
+      render(<GymsSearchPage />, { wrapper });
+    });
 
     expect(screen.getByPlaceholderText(/search gyms/i)).toBeInTheDocument();
   });
 
   it("loads all gyms on mount", async () => {
-    render(<GymsSearchPage />, { wrapper });
+    act(() => {
+      render(<GymsSearchPage />, { wrapper });
+    });
 
     await waitFor(() => {
       expect(screen.getByText("JS Gym")).toBeInTheDocument();
@@ -61,7 +65,9 @@ describe("GymsSearchPage", () => {
   });
 
   it("filters gyms as the user types", async () => {
-    render(<GymsSearchPage />, { wrapper });
+    act(() => {
+      render(<GymsSearchPage />, { wrapper });
+    });
 
     await waitFor(() => {
       expect(screen.getByText("JS Gym")).toBeInTheDocument();

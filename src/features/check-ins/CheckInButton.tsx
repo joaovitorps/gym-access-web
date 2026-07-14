@@ -1,28 +1,30 @@
 import { Button } from "@/components/ui/Button";
-import { useGeolocation } from "@/hooks/useGeolocation";
 import { calculateDistance, formatDateTime, formatDistance } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Loader2, MapPin } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { checkIn } from "./api";
 import type { Gym } from "@/features/gyms/api";
 
 interface CheckInButtonProps {
   gym: Gym;
+  latitude: number | null;
+  longitude: number | null;
+  isLocating?: boolean;
 }
 
 const MAX_DISTANCE_METERS = 100;
 
-export function CheckInButton({ gym }: CheckInButtonProps) {
+export function CheckInButton({
+  gym,
+  latitude,
+  longitude,
+  isLocating = false,
+}: CheckInButtonProps) {
   const queryClient = useQueryClient();
-  const { latitude, longitude, isLoading: isLocating, error, request } = useGeolocation();
   const [checkedInAt, setCheckedInAt] = useState<string | null>(null);
-
-  useEffect(() => {
-    request();
-  }, [request]);
 
   const mutation = useMutation({
     mutationFn: ({
@@ -91,7 +93,7 @@ export function CheckInButton({ gym }: CheckInButtonProps) {
         size="sm"
         className="relative gap-2"
         onClick={handleCheckIn}
-        disabled={mutation.isPending || isLocating || !isWithinRange}
+        disabled={mutation.isPending || isLocating || (distance !== null && !isWithinRange)}
       >
         {mutation.isPending ? (
           <Loader2 className="h-5 w-5 animate-spin" />
@@ -106,14 +108,8 @@ export function CheckInButton({ gym }: CheckInButtonProps) {
               ? `Too far (${formatDistance(distance)} away)`
               : isLocating
                 ? "Getting location..."
-                : error
-                  ? "Enter location manually"
-                  : "Check in"}
+                : "Enter location manually"}
       </Button>
-
-      {error ? (
-        <p className="mt-2 text-center text-xs text-error">{error}</p>
-      ) : null}
     </div>
   );
 }
