@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import { useCheckInHistory } from "./hooks";
+import { useCheckInsHistory } from "./hooks";
 import { ValidateCheckInButton } from "./ValidateCheckInButton";
 
 export function CheckInHistoryList() {
@@ -18,10 +18,12 @@ export function CheckInHistoryList() {
   const [page, setPage] = useState(1);
   const isAdmin = user?.role === "ADMIN";
 
-  const { data, isLoading, error, isError } = useCheckInHistory(page);
+  const { data, isLoading, error, isError } = useCheckInsHistory(page, isAdmin);
 
   const handleRetry = () => {
-    queryClient.invalidateQueries({ queryKey: ["check-ins", "history"] });
+    queryClient.invalidateQueries({
+      queryKey: isAdmin ? ["check-ins", "all"] : ["check-ins", "history"],
+    });
   };
 
   if (isLoading) {
@@ -37,7 +39,7 @@ export function CheckInHistoryList() {
   if (isError) {
     return (
       <ErrorState
-        title="Could not load history"
+        title={isAdmin ? "Could not load all check-ins" : "Could not load history"}
         description={error.message}
         onRetry={handleRetry}
       />
@@ -86,6 +88,11 @@ export function CheckInHistoryList() {
                   )}
                 </p>
               </div>
+              {isAdmin ? (
+                <p className="mt-1 text-xs text-text-secondary">
+                  User: <span className="font-mono">{checkIn.user_id}</span>
+                </p>
+              ) : null}
               {isAdmin && !checkIn.validated_at ? (
                 <ValidateCheckInButton checkInId={checkIn.id} />
               ) : null}
